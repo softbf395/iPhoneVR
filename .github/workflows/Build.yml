@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: recursive
 
       - name: Setup Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -20,18 +20,46 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          brew update
           brew install cbindgen
           chmod +x build_and_repack.sh
           chmod +x repack_alvr_client.sh
 
-      - name: Run Build and Repack Script
+      # Build Rust + repack (your existing logic)
+      - name: Build Rust + Repack ALVR
         run: ./build_and_repack.sh
+
+      # Build iOS app UNSIGNED
+      - name: Build ALVRClient (unsigned)
+        run: |
+          xcodebuild \
+            -project ALVRClient.xcodeproj \
+            -scheme ALVRClient \
+            -configuration Release \
+            -sdk iphoneos \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            build
+
+      # Package .app -> unsigned .ipa
+      - name: Package Unsigned IPA
+        run: |
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "ALVRClient.app" | head -n 1)
+
+          echo "Found app at: $APP_PATH"
+
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+
+          zip -r iPhoneVR-unsigned.ipa Payload
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: iPhoneVR-Build
+          name: iPhoneVR-Unsigned-Build
           path: |
-            *.ipa
-            *.app
+            iPhoneVR-unsigned.ipa
+            Payload/ALVRClient.app
             ALVR/target/aarch64-apple-ios/distribution/libalvr_client_core.a
