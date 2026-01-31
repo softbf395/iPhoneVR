@@ -1,0 +1,37 @@
+name: Build iPhoneVR IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Setup Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios
+
+      - name: Install Dependencies
+        run: |
+          brew install cbindgen
+          chmod +x build_and_repack.sh
+          chmod +x repack_alvr_client.sh
+
+      - name: Run Build and Repack Script
+        run: ./build_and_repack.sh
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: iPhoneVR-Build
+          path: |
+            *.ipa
+            *.app
+            ALVR/target/aarch64-apple-ios/distribution/libalvr_client_core.a
