@@ -21,16 +21,36 @@ jobs:
       - name: Install Dependencies
         run: |
           brew update
-          brew install cbindgen
+          brew install xcodegen cbindgen
           chmod +x build_and_repack.sh
           chmod +x repack_alvr_client.sh
 
-      # Build Rust + repack (your existing logic)
       - name: Build Rust + Repack ALVR
         run: ./build_and_repack.sh
 
-      # Build iOS app UNSIGNED
-      - name: Build ALVRClient (unsigned)
+      # Generate the xcodeproj using a YAML spec
+      - name: Generate Xcode Project
+        run: |
+          cat > project.yml <<EOF
+          name: ALVRClient
+          options:
+            bundleIdPrefix: kotleni
+          targets:
+            ALVRClient:
+              type: application
+              platform: iOS
+              deploymentTarget: "15.0"
+              sources: [ALVRClient]
+              settings:
+                base:
+                  INFOPLIST_FILE: ALVRClient/Info.plist
+                  # Link the Rust library built in previous step
+                  LIBRARY_SEARCH_PATHS: \$(inherited) \$(PROJECT_DIR)/ALVR/target/aarch64-apple-ios/distribution
+                  OTHER_LDFLAGS: -lalvr_client_core
+          EOF
+          xcodegen generate
+
+      - name: Build ALVRClient (Unsigned)
         run: |
           xcodebuild \
             -project ALVRClient.xcodeproj \
@@ -43,23 +63,18 @@ jobs:
             DEVELOPMENT_TEAM="" \
             build
 
-      # Package .app -> unsigned .ipa
       - name: Package Unsigned IPA
         run: |
+          # Find the built .app file
           APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "ALVRClient.app" | head -n 1)
-
           echo "Found app at: $APP_PATH"
-
+          
           mkdir -p Payload
           cp -R "$APP_PATH" Payload/
-
           zip -r iPhoneVR-unsigned.ipa Payload
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: iPhoneVR-Unsigned-Build
-          path: |
-            iPhoneVR-unsigned.ipa
-            Payload/ALVRClient.app
-            ALVR/target/aarch64-apple-ios/distribution/libalvr_client_core.a
+          name: iPhoneVR-Unsigned-IPA
+          path: iPhoneVR-unsigned.ipa
