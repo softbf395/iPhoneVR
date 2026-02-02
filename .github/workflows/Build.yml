@@ -1,4 +1,4 @@
-name: Build iPhoneVR IPA
+name: Build iPhoneVR
 
 on:
   workflow_dispatch:
@@ -6,51 +6,29 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Setup Rust Toolchain
+      - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-ios
 
-      - name: Install Dependencies
-        run: |
-          brew update
-          brew install xcodegen cbindgen
-          chmod +x build_and_repack.sh
-          chmod +x repack_alvr_client.sh
+      - name: Install Tools
+        run: brew install xcodegen cbindgen
 
-      - name: Build Rust + Repack ALVR
-        run: ./build_and_repack.sh
+      - name: Build Rust Core
+        run: ./build_and_repack.sh # Ensure this script calls your cargo build
 
-      # Generate the xcodeproj using a YAML spec
+      - name: Repack Framework
+        run: chmod +x repack_alvr_client.sh && ./repack_alvr_client.sh
+
       - name: Generate Xcode Project
-        run: |
-          cat > project.yml <<EOF
-          name: ALVRClient
-          options:
-            bundleIdPrefix: kotleni
-          targets:
-            ALVRClient:
-              type: application
-              platform: iOS
-              deploymentTarget: "15.0"
-              sources: [ALVRClient]
-              settings:
-                base:
-                  INFOPLIST_FILE: ALVRClient/Info.plist
-                  # Link the Rust library built in previous step
-                  LIBRARY_SEARCH_PATHS: \$(inherited) \$(PROJECT_DIR)/ALVR/target/aarch64-apple-ios/distribution
-                  OTHER_LDFLAGS: -lalvr_client_core
-          EOF
-          xcodegen generate
+        run: xcodegen generate
 
-      - name: Build ALVRClient (Unsigned)
+      - name: Build Unsigned IPA
         run: |
           xcodebuild \
             -project ALVRClient.xcodeproj \
