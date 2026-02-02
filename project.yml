@@ -1,0 +1,19 @@
+name: ALVRClient
+options:
+  bundleIdPrefix: com.Aed
+targets:
+  ALVRClient:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources: 
+      - path: ALVRClient # Change this if your folder is named differently
+    frameworks:
+      - framework: ALVRClientCore.xcframework
+      - sdk: ARKit.framework
+      - sdk: Vision.framework
+    settings:
+      base:
+        INFOPLIST_FILE: ALVRClient/Info.plist
+        LD_RUNPATH_SEARCH_PATHS: $(inherited) @executable_path/Frameworks
+        OTHER_LDFLAGS: $(inherited) -ObjC
