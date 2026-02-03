@@ -18,13 +18,8 @@ jobs:
 
       - name: Install Tools
         run: brew install xcodegen cbindgen
-
-      - name: Build Rust Core
-        run: ./build_and_repack.sh # Ensure this script calls your cargo build
-
       - name: Repack Framework
-        run: chmod +x repack_alvr_client.sh && ./repack_alvr_client.sh
-
+        run: chmod +x build_and_repack.sh && ./build_and_repack.sh
       - name: Generate Xcode Project
         run: xcodegen generate
 
