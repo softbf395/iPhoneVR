@@ -7,7 +7,7 @@ targets:
     platform: iOS
     deploymentTarget: "15.0"
     sources: 
-      - path: ALVRClient # Change this if your folder is named differently
+      - path: ALVRClient/main # Change this if your folder is named differently
     frameworks:
       - framework: ALVRClientCore.xcframework
       - sdk: ARKit.framework
