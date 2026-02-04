@@ -19,7 +19,11 @@ jobs:
       - name: Install Tools
         run: brew install xcodegen cbindgen
       - name: Repack Framework
-        run: chmod +x build_and_repack.sh && ./build_and_repack.sh
+        run: |
+         chmod +x repack_alvr_client.sh
+         chmod +x build_and_repack.sh
+         ./repack_alvr_client.sh
+         ./build_and_repack.sh
       - name: Generate Xcode Project
         run: xcodegen generate
 
