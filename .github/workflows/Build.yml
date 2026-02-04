@@ -22,8 +22,8 @@ jobs:
         run: |
          chmod +x repack_alvr_client.sh
          chmod +x build_and_repack.sh
-         ./repack_alvr_client.sh
          ./build_and_repack.sh
+          ./repack_alvr_client.sh
       - name: Generate Xcode Project
         run: xcodegen generate
 
