@@ -22,6 +22,7 @@ jobs:
       - name: Build Rust Core and Repack
         run: |
           chmod +x build_and_repack.sh
+          chmod +x repack_alvr_client.sh
           # Ensure the script runs in the correct environment
           ./build_and_repack.sh
 
