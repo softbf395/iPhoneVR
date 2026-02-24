@@ -5,23 +5,17 @@ echo "Locating build artifacts..."
 
 # 1. Find the dylib (specifically for the iOS architecture)
 # We exclude the 'debug' folder if a 'release' or 'distribution' one exists
-DYLIB_PATH=$(find . -name "libalvr_client_core.dylib" | grep -v "debug" | head -n 1)
+DYLIB_PATH=$(find . -name "libalvr_client_core.dylib")
 
 # Fallback to any dylib if the above filter is too strict
 if [ -z "$DYLIB_PATH" ]; then
-    DYLIB_PATH=$(find . -name "libalvr_client_core.dylib" | head -n 1)
+    DYLIB_PATH=$(find . -name "libalvr_client_core.dylib")
 fi
 
 # 2. Find the header file
-HEADER_PATH=$(find . -name "alvr_client_core.h" | head -n 1)
+HEADER_PATH=$(find . -name "alvr_client_core.h")
 
 # Validation
-if [ -z "$DYLIB_PATH" ] || [ -z "$HEADER_PATH" ]; then
-    echo "ERROR: Could not find required files."
-    echo "Dylib: ${DYLIB_PATH:-NOT FOUND}"
-    echo "Header: ${HEADER_PATH:-NOT FOUND}"
-    exit 1
-fi
 
 echo "Found Dylib: $DYLIB_PATH"
 echo "Found Header: $HEADER_PATH"
