@@ -7,7 +7,9 @@ targets:
     platform: iOS
     deploymentTarget: "17.0"
     sources: 
-      - path: ALVRClient/main # Change this if your folder is named differently
+      - path: ALVRClient/main
+      # Add the bridging header to the sources so XcodeGen tracks it
+      - path: ALVRClient/BridgingHeader.h 
     frameworks:
       - framework: ALVRClientCore.xcframework
       - sdk: ARKit.framework
@@ -15,5 +17,10 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: ALVRClient/Info.plist
+        # THIS IS THE CRITICAL FIX:
+        SWIFT_OBJC_BRIDGING_HEADER: ALVRClient/BridgingHeader.h
+        # Tells the compiler to look in the project root for alvr_client_core.h
+        HEADER_SEARCH_PATHS: $(inherited) $(PROJECT_DIR)
+        FRAMEWORK_SEARCH_PATHS: $(inherited) $(PROJECT_DIR)
         LD_RUNPATH_SEARCH_PATHS: $(inherited) @executable_path/Frameworks
         OTHER_LDFLAGS: $(inherited) -ObjC
