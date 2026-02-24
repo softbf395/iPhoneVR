@@ -5,7 +5,7 @@ targets:
   ALVRClient:
     type: application
     platform: iOS
-    deploymentTarget: "15.0"
+    deploymentTarget: "17.0"
     sources: 
       - path: ALVRClient/main # Change this if your folder is named differently
     frameworks:
