@@ -23,7 +23,3 @@ cbindgen --config cbindgen.toml --crate alvr_client_core --output ../../alvr_cli
 cd ../../../
 
 sh repack_alvr_client.sh
-
-# Clean up ALVR build
-cargo clean --manifest-path ALVR/Cargo.toml
-rm ALVR/alvr_client_core.h
